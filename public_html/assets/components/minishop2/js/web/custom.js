@@ -24,17 +24,18 @@ class MiniShop {
         this.addListener(this.config.triggerElementSelector);
     }
 
-    send(params) {
+    send(params, url, method, headers) {
+        method = method ? method : 'POST';
+        headers = headers ? headers : {"X-Requested-With": "XMLHttpRequest"};
+        url = url ? url : this.config.actionUrl;
+
         let data = {instance: this, params: params};
         if (!this.fire(this.events.ms.before_send, data)) {
             this.errorHandler(data);
             return false;
         }
 
-        let headers = {"X-Requested-With": "XMLHttpRequest"},
-            method = 'POST',
-            url = this.config.actionUrl,
-            options = {
+        let options = {
                 method: method,
                 headers: headers,
                 body: params
@@ -76,7 +77,8 @@ class MiniShop {
                 if (target) {
                     target.innerHTML = data.response.data.html[key];
                     self.addListener(self.config.triggerElementSelector, target);
-                }            }
+                }
+            }
 
         }
         console.log('Успех', data);
@@ -92,7 +94,7 @@ class MiniShop {
         return true;
     }
 
-    addListener(selector,scope) {
+    addListener(selector, scope) {
         scope = scope || document;
         let elements = scope.querySelectorAll(selector);
         if (elements) {
@@ -121,30 +123,32 @@ class Cart extends MiniShop {
     }
 
     add(params) {
+        // api/cart/product - POST
         params.append('ms2_action', 'cart/add');
         super.send(params);
     }
 
     change(params) {
-        params.append('target', this.config.cartBlockSelector);
+        // api/cart/product - PUT
         params.append('ms2_action', 'cart/change');
         super.send(params);
 
     }
 
     remove(params) {
-        params.append('target', this.config.cartBlockSelector);
+        // api/cart/product - DELETE
         params.append('ms2_action', 'cart/remove');
         super.send(params);
     }
 
     clean(params) {
-        params.append('target', this.config.cartBlockSelector);
+        // api/cart/products - DELETE
         params.append('ms2_action', 'cart/clean');
         super.send(params);
     }
 
     status(params) {
+        // api/cart/products - GET
         params.append('ms2_action', 'cart/status');
         super.send(params);
     }
@@ -158,7 +162,12 @@ const minishop = new MiniShop({});
 
 if (minishop) {
     document.addEventListener('ms_after_send', e => {
-        console.log(e.detail);
+        if(e.detail.action == 'cart/add'){
+            //blabla
+        }
+    });
+    document.addEventListener('ms_after_cart_add', e => {
+        //blabla
     });
     document.addEventListener('ms_before_send', e => {
         console.log(e.detail);
