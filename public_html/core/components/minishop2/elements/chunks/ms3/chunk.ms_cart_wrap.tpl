@@ -28,9 +28,9 @@
         </table>
     </div>
     <div class="d-flex justify-content-between">
-       {* <a href="{6 | url}" class="btn btn-success">
+        <a href="{6 | url}" class="btn btn-success">
             Оформить заказ
-        </a>*}
+        </a>
         <form method="post" class="ms2_form">
             <button type="submit" name="ms2_action" value="cart/clean" class="btn btn-danger" data-ms-action="cart/clean">
                 {'ms2_cart_clean' | lexicon}

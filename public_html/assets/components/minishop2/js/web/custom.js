@@ -7,8 +7,15 @@ class MiniShop {
             'deliveryFieldSelector': '[name="delivery"]',
             'paymentFieldSelector': '[name="payment"]',
             'anotherFieldSelector': '[data-ms-field]',
+            'cartCostSelector': '[data-ms-cart-cost]',
+            'deliveryCostSelector': '[data-ms-delivery-cost]',
+            'orderCostSelector': '[data-ms-order-cost]',
+            'discountCostSelector': '[data-ms-dicrount-cost]',
             'actionUrl': '/assets/components/minishop2/action.php',
             'hideClass': 'd-none',
+            'errorClass': 'ms-error',
+            'requireClass': 'ms-required',
+            'inputParentSelector': '.ms-input-parent',
             'selectorPrefix': 'ms-'
         }
         this.events = {
@@ -19,6 +26,7 @@ class MiniShop {
         };
 
         this.config = Object.assign(this.config, config);
+        this.orderBlock = document.querySelector(this.config.orderBlockSelector);
         this.initialize();
     }
 
@@ -26,13 +34,13 @@ class MiniShop {
         if (!this.cart) {
             this.cart = new msCart(this.config);
         }
-        if (!this.order) {
+        if (!this.order && this.orderBlock) {
             this.order = new msOrder(this.config);
         }
         this.addListener(this.config.triggerElementSelector);
     }
 
-    send(params, url, method, headers) {
+    async send(params, url, method, headers) {
         method = method ? method : 'POST';
         headers = headers ? headers : {"X-Requested-With": "XMLHttpRequest"};
         url = url ? url : this.config.actionUrl;
@@ -68,7 +76,7 @@ class MiniShop {
             body: data.params
         };
 
-        fetch(url, options)
+        await fetch(url, options)
             .then(response => response.json())
             .then(result => this.responseHandler(result, data));
     }
@@ -126,18 +134,17 @@ class MiniShop {
         if (elements) {
             elements.forEach(el => {
                 let eventName = 'click';
-                if (el.dataset.msAction) {
-                    let msAction = el.dataset.msAction.split('/');
-                    className = msAction[0];
-                    methodName = msAction[1];
-                }
-
                 if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(el.tagName) !== -1) {
                     eventName = 'change';
                 }
 
                 el.addEventListener(eventName, e => {
                     e.preventDefault();
+                    if (el.dataset.msAction) {
+                        let msAction = el.dataset.msAction.split('/');
+                        className = msAction[0];
+                        methodName = msAction[1];
+                    }
                     this[className][methodName](this.prepare(el), el);
                 });
             });
@@ -157,40 +164,40 @@ class msCart extends MiniShop {
         this.cart = this;
     }
 
-    add(params, el) {
+    async add(params, el) {
         // api/cart/product - POST
-        params.append('ms_action', 'cart/add');
-        params.append('ms2_action', 'cart/add');
-        super.send(params);
+        params.set('ms_action', 'cart/add');
+        params.set('ms2_action', 'cart/add');
+        await super.send(params);
     }
 
-    change(params, el) {
+    async change(params, el) {
         // api/cart/product - PUT
-        params.append('ms_action', 'cart/change');
-        params.append('ms2_action', 'cart/change');
-        super.send(params);
+        params.set('ms_action', 'cart/change');
+        params.set('ms2_action', 'cart/change');
+        await super.send(params);
 
     }
 
-    remove(params, el) {
+    async remove(params, el) {
         // api/cart/product - DELETE
-        params.append('ms_action', 'cart/remove');
-        params.append('ms2_action', 'cart/remove');
-        super.send(params);
+        params.set('ms_action', 'cart/remove');
+        params.set('ms2_action', 'cart/remove');
+        await super.send(params);
     }
 
-    clean(params, el) {
+    async clean(params, el) {
         // api/cart/products - DELETE
-        params.append('ms_action', 'cart/clean');
-        params.append('ms2_action', 'cart/clean');
-        super.send(params);
+        params.set('ms_action', 'cart/clean');
+        params.set('ms2_action', 'cart/clean');
+        await super.send(params);
     }
 
-    status(params) {
+    async status(params) {
         // api/cart/products - GET
-        params.append('ms_action', 'cart/status');
-        params.append('ms2_action', 'cart/status');
-        super.send(params);
+        params.set('ms_action', 'cart/status');
+        params.set('ms2_action', 'cart/status');
+        await super.send(params);
     }
 
     removeItem(key) {
@@ -220,59 +227,37 @@ class msOrder extends MiniShop {
     initialize() {
         this.params = new FormData();
         this.order = this;
-        this.orderBlock = document.querySelector(this.config.orderBlockSelector);
         if (this.orderBlock) {
             //this.updateFields(this.params);
             this.addListener(this.config.anotherFieldSelector, this.orderBlock, 'order', 'add');
         }
         // TODO понять почему синхронно в заказе не меняются доставка и оплата
-        this.add(this.params, this.orderBlock.querySelector(this.config.deliveryFieldSelector + ':checked'));
+
         this.updatePayments(this.params, this.orderBlock.querySelector(this.config.deliveryFieldSelector + ':checked'));
         this.addListener(this.config.deliveryFieldSelector, this.orderBlock, 'order', 'updatePayments');
+
     }
 
-    updateFields(params) {
-        let allFields = this.orderBlock.querySelectorAll(this.config.anotherFieldSelector);
-        if (allFields.length) {
-            allFields.forEach(el => {
-                if (el.value && el.tagName !== 'BUTTON') {
-                    switch (el.type) {
-                        case 'checkbox':
-                        case 'radio':
-                            if (el.checked) {
-                                this.add(this.params, el);
-                            }
-                            break;
-                        default:
-                            this.add(this.params, el);
-                            break;
-                    }
-                }
-            });
-        }
-        this.getrequired(params);
-    }
-
-    add(params, el) {
+    async add(params, el) {
         // api/order/add - GET
-        console.log(el.name, el.value);
-        if(el.name && el.value){
-            params.append('ms_action', 'order/add');
-            params.append('ms2_action', 'order/add');
-            params.append('key', el.name);
-            params.append('value', el.value);
-            super.send(params);
+        if (el.name && el.value) {
+            params.set('ms_action', 'order/add');
+            params.set('ms2_action', 'order/add');
+            params.set('key', el.name);
+            params.set('value', el.value);
+            await super.send(params);
         }
     }
 
-    getrequired(params) {
+    async getrequired(params) {
         // api/order/required - GET
-        params.append('ms_action', 'order/getrequired');
-        params.append('ms2_action', 'order/getrequired');
-        super.send(params);
+        params.set('ms_action', 'order/getrequired');
+        params.set('ms2_action', 'order/getrequired');
+        params.set('id', document.querySelector(this.config.deliveryFieldSelector + ':checked').value);
+        await super.send(params);
     }
 
-    updatePayments(params, el) {
+    async updatePayments(params, el) {
         if (el.checked) {
             let paymentFields = this.orderBlock.querySelectorAll(this.config.paymentFieldSelector),
                 paymentAllow = el.dataset.payments;
@@ -281,28 +266,131 @@ class msOrder extends MiniShop {
                     paymentAllow.indexOf(el.value) === -1 ? el.disabled = true : el.disabled = false;
                 });
                 let curPayment = this.orderBlock.querySelector(this.config.paymentFieldSelector + ':checked');
-                if(curPayment.disabled){
+                if (curPayment.disabled) {
                     curPayment.checked = false;
-                    paymentFields.forEach(el => {
-                        if(el.disabled === false){
+                    await paymentFields.forEach(el => {
+                        if (el.disabled === false) {
                             el.checked = true;
-                            this.add(params,el);
+                            this.add(params, el);
                             return true;
                         }
                     });
+                } else {
+                    await this.add(params, curPayment);
                 }
             }
-            this.add(params, el);
+            await this.add(params, el);
+        }
+        await this.getrequired(params);
+        await this.getcost(params);
+    }
+
+    async getcost(params) {
+        params.set('ms_action', 'order/getcost');
+        params.set('ms2_action', 'order/getcost');
+        await super.send(params);
+    }
+
+    async clean(params) {
+        params.set('ms_action', 'order/clean');
+        params.set('ms2_action', 'order/clean');
+        await super.send(params);
+        window.location.reload();
+    }
+
+    async submit(params) {
+        params.set('ms_action', 'order/submit');
+        params.set('ms2_action', 'order/submit');
+        await super.send(params);
+    }
+
+    errorHandler(data) {
+        switch (data.action) {
+            case 'order/submit':
+                this.submitErrorHandler(data);
+                break;
+        }
+        console.log('Ошибка', data);
+    }
+
+    successHandler(data) {
+        switch (data.action) {
+            case 'order/getrequired':
+                this.getrequiredSuccessHandler(data);
+                break;
+
+            case 'order/submit':
+                this.submitSuccessHandler(data);
+                break;
+
+            case 'order/getcost':
+                this.getcostSuccessHandler(data);
+                break;
+        }
+
+        console.log('Успех', data);
+    }
+
+    getrequiredSuccessHandler(data) {
+        window.minishop = this;
+        if (data.response.data.requires) {
+            let requireFieldWraps = document.querySelectorAll('.' + this.config.requireClass);
+            if (requireFieldWraps.length) {
+                requireFieldWraps.forEach(el => {
+                    el.classList.remove(this.config.requireClass);
+                    el.querySelector(this.config.anotherFieldSelector).removeEventListener('change', this.errorClassRemove);
+                });
+            }
+            data.response.data.requires.forEach(el => {
+                let field = document.querySelector('[name="' + el + '"]');
+                field.closest(this.config.inputParentSelector).classList.add(this.config.requireClass);
+                field.addEventListener('change', this.errorClassRemove);
+            });
+
         }
     }
 
-    getcost() {
+    errorClassRemove(e) {
+        e.target.classList.remove(window.minishop.config.errorClass);
     }
 
-    clean() {
+    submitSuccessHandler(data) {
+        if (data.response.data.redirect) {
+            document.location.href = data.response.data.redirect;
+        } else if (data.response.data.msorder) {
+            document.location.href = document.location.origin + document.location.pathname
+                + (document.location.search ? document.location.search + '&' : '?')
+                + 'msorder=' + data.response.data.msorder;
+        } else {
+            location.reload();
+        }
     }
 
-    submit() {
+    submitErrorHandler(data) {
+        if (data.response.data) {
+            data.response.data.forEach(name => {
+                console.log(data.response.data);
+                let field = document.querySelector('[name="' + name + '"]');
+                if (field) {
+                    field.classList.add(this.config.errorClass);
+                }
+            });
+        }
+    }
+
+    getcostSuccessHandler(data) {
+        let costSelectors = {
+            discount_cost: this.config.discountCostSelector,
+            cost: this.config.orderCostSelector,
+            delivery_cost: this.config.deliveryCostSelector,
+            cart_cost: this.config.cartCostSelector,
+        }
+        for (let k in costSelectors) {
+            let el = document.querySelector(costSelectors[k]);
+            if (el && data.response.data[k]) {
+                el.innerText = new Intl.NumberFormat("ru").format(data.response.data[k]);
+            }
+        }
     }
 }
 
@@ -320,7 +408,7 @@ document.addEventListener('ms_before_send', e => {
     e.detail.callbacks.errorHandlers.before['testhandler2'] = function (data) {
         data.test = 'bla-bla-bla';
     }
-    e.detail.params.append('test', 1);
+    e.detail.params.set('test', 1);
 
 });
 
