@@ -2,9 +2,9 @@ import MiniShop from "./minishop.class.js";
 
 export default class msCart extends MiniShop {
     initialize() {
-        this.cartBlock = document.querySelector(this.config.cartBlockSelector);
-        if(this.cartBlock){
-            this.addListener(this.config.triggerElementSelector, this.cartBlock);
+        this.orderBlock = document.querySelector(this.config.orderBlockSelector);
+        if(!this.orderBlock){
+            this.addListener(this.config.triggerElementSelector);
         }
         this.className = 'msCart';
     }
