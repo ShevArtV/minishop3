@@ -1,12 +1,14 @@
 import MiniShop from "./minishop.class.js";
 export  default  class msOrder extends MiniShop {
     initialize() {
+        this.className = 'msOrder';
         this.params = new FormData();
         this.orderBlock = document.querySelector(this.config.orderBlockSelector);
         if (this.orderBlock) {
-            this.addListener(this.config.anotherFieldSelector, this.orderBlock, 'order', 'add');
+            this.addListener(this.config.triggerElementSelector, this.orderBlock);
+            this.addListener(this.config.anotherFieldSelector, this.orderBlock,'add');
             this.updatePayments(this.params, this.orderBlock.querySelector(this.config.deliveryFieldSelector + ':checked'));
-            this.addListener(this.config.deliveryFieldSelector, this.orderBlock, 'order', 'updatePayments');
+            this.addListener(this.config.deliveryFieldSelector, this.orderBlock,'updatePayments');
         }
     }
 

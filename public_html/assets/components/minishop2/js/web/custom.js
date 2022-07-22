@@ -29,6 +29,7 @@ document.addEventListener('ms_before_send', e => {
 
 const msizitoast = new msIziToast({});
 const msnotify = new msNotify({});
+
 const mscart = new msCart({});
 const msorder = new msOrder({});
 //mscart.notify = msnotify;

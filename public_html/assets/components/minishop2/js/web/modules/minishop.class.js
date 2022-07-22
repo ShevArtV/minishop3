@@ -24,7 +24,7 @@ export default class MiniShop {
                 before_send: 'ms_before_send',
             },
         };
-
+        this.className = 'MiniShop';
         this.config = Object.assign(this.config, config);
         this.initialize();
     }
@@ -83,8 +83,8 @@ export default class MiniShop {
                 if (data.callbacks.errorHandlers.after.length) {
                     this.runCallbacks(data.callbacks.errorHandlers.after, data);
                 }
-                if (data.instance.errorHandler) {
-                    data.instance.errorHandler(data);
+                if (this.errorHandler) {
+                    this.errorHandler(data);
                 } else {
                     this.errorHandler(data);
                 }
@@ -92,8 +92,8 @@ export default class MiniShop {
                 if (data.callbacks.successHandlers.after.length) {
                     this.runCallbacks(data.callbacks.successHandlers.after, data);
                 }
-                if (data.instance.successHandler) {
-                    data.instance.successHandler(data);
+                if (this.successHandler) {
+                    this.successHandler(data);
                 } else {
                     this.successHandler(data);
                 }
@@ -122,7 +122,7 @@ export default class MiniShop {
         return true;
     }
 
-    addListener(selector, scope, className, methodName) {
+    addListener(selector, scope, methodName) {
         scope = scope || document;
         let elements = scope.querySelectorAll(selector);
         if (elements) {
@@ -131,15 +131,15 @@ export default class MiniShop {
                 if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(el.tagName) !== -1) {
                     eventName = 'change';
                 }
-                if (el.dataset.msAction) {
-                    let msAction = el.dataset.msAction.split('/');
-                    className = msAction[0];
-                    methodName = msAction[1];
-                }
-                console.log( methodName, el);
                 el.addEventListener(eventName, e => {
+                    if (el.dataset.msAction) {
+                        let msAction = el.dataset.msAction.split('/');
+                        methodName = msAction[1];
+                    }
+
                     e.preventDefault();
                     this[methodName](this.prepare(el), el);
+
                 });
             });
         }
