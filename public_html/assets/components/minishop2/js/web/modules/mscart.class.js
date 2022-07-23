@@ -3,7 +3,7 @@ import MiniShop from "./minishop.class.js";
 export default class msCart extends MiniShop {
     initialize() {
         this.orderBlock = document.querySelector(this.config.orderBlockSelector);
-        if(!this.orderBlock){
+        if (!this.orderBlock) {
             this.addListener(this.config.triggerElementSelector);
         }
         this.className = 'msCart';
@@ -21,7 +21,6 @@ export default class msCart extends MiniShop {
         params.set('ms_action', 'cart/change');
         params.set('ms2_action', 'cart/change');
         await super.send(params);
-
     }
 
     async remove(params, el) {
@@ -55,9 +54,9 @@ export default class msCart extends MiniShop {
         }
 
         if (data.response.data.html) {
-            let html = data.response.data.html;
+            const html = data.response.data.html;
             for (let key in html) {
-                let target = document.querySelector('[data-' + this.config.selectorPrefix + key + ']');
+                const target = document.querySelector('[data-' + this.config.selectorPrefix + key + ']');
 
                 if (target) {
                     target.innerHTML = data.response.data.html[key];
@@ -65,6 +64,7 @@ export default class msCart extends MiniShop {
                 }
             }
         }
+
         if (this.notify && data.response.message) {
             this.notify.showMessage('success', data.response.message);
         }
