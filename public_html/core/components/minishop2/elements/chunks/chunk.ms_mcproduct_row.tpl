@@ -7,7 +7,7 @@
             {$pagetitle}
         </div>
         <div class="col-">
-            <input type="number" name="count" value="{$count}" data-ms-action="cart/change">
+            <input type="number" name="count" value="{$count}" data-ms-cart-action="change">
         </div>
     </form>
 </li>

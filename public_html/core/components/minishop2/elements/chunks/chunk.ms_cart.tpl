@@ -54,12 +54,11 @@
                                 <input type="hidden" name="key" value="{$product.key}"/>
                                 <div class="form-group">
                                     <div class="input-group input-group-sm">
-                                        <input type="number" name="count" value="{$product.count}" class="form-control" data-ms-action="cart/change" />
+                                        <input type="number" name="count" value="{$product.count}" class="form-control" data-ms-cart-action="change" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">{'ms2_frontend_count_unit' | lexicon}</span>
                                         </div>
                                     </div>
-                                    <button class="btn btn-sm" type="submit" name="ms2_action" value="cart/change">&#8635;</button>
                                 </div>
                             </form>
                         </td>
@@ -78,7 +77,7 @@
                         <td class="ms-remove">
                             <form method="post" class="ms2_form text-md-right">
                                 <input type="hidden" name="key" value="{$product.key}">
-                                <button class="btn btn-sm btn-danger" type="submit" name="ms2_action" value="cart/remove" data-ms-action="cart/remove" >&times;</button>
+                                <button class="btn btn-sm btn-danger" type="submit" data-ms-cart-action="remove" >&times;</button>
                             </form>
                         </td>
                     </tr>
@@ -107,7 +106,7 @@
                 Оформить заказ
             </a>
             <form method="post" class="ms2_form">
-                <button type="submit" name="ms2_action" value="cart/clean" class="btn btn-danger" data-ms-action="cart/clean">
+                <button type="submit" class="btn btn-danger" data-ms-cart-action="clean">
                     {'ms2_cart_clean' | lexicon}
                 </button>
             </form>

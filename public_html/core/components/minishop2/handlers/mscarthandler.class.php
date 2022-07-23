@@ -123,10 +123,10 @@ class msCartHandler implements msCartInterface
 
         //ms3
         $this->config['json_response'] = $_POST['json_response'];
-        $this->cartRowTpl = '@FILE components/minishop2/elements/chunks/ms3/chunk.ms_cart_row.tpl';
-        $this->cartWrapTpl = '@FILE components/minishop2/elements/chunks/ms3/chunk.ms_cart_wrap.tpl';
-        $this->minicartRowTpl = '@FILE components/minishop2/elements/chunks/ms3/chunk.ms_mcproduct_row.tpl';
-        $this->minicartWrapTpl = '@FILE components/minishop2/elements/chunks/ms3/chunk.ms_minicart.tpl';
+        $this->cartRowTpl = '@FILE components/minishop2/elements/chunks/chunk.ms_cart_row.tpl';
+        $this->cartWrapTpl = '@FILE components/minishop2/elements/chunks/chunk.ms_cart_wrap.tpl';
+        $this->minicartRowTpl = '@FILE components/minishop2/elements/chunks/chunk.ms_mcproduct_row.tpl';
+        $this->minicartWrapTpl = '@FILE components/minishop2/elements/chunks/chunk.ms_minicart.tpl';
 
         $this->cart = &$this->config['cart'];
         $this->modx->lexicon->load('minishop2:cart');

@@ -1,4 +1,4 @@
-<form class="ms2_form" id="msOrder" method="post" data-ms-order >
+<form id="msOrder" {!$status['total_count'] ? 'class="d-none"':''} method="post" data-ms-order >
 
     <div class="row">
         <div class="col-12 col-md-6">
@@ -9,7 +9,7 @@
                         {('ms2_frontend_' ~ $field) | lexicon} <span class="required-star">*</span>
                     </label>
                     <div class="col-md-8">
-                        <input data-ms-field type="text" id="{$field}" placeholder="{('ms2_frontend_' ~ $field) | lexicon}"
+                        <input data-ms-order-action="add" type="text" id="{$field}" placeholder="{('ms2_frontend_' ~ $field) | lexicon}"
                                name="{$field}" value="{$form[$field]}"
                                class="form-control{($field in list $errors) ? ' error' : ''}">
                     </div>
@@ -22,7 +22,7 @@
                     {'ms2_frontend_comment' | lexicon} <span class="required-star">*</span>
                 </label>
                 <div class="col-md-8">
-                    <textarea data-ms-field name="comment" id="comment" placeholder="{'ms2_frontend_comment' | lexicon}"
+                    <textarea data-ms-order-action="add" name="comment" id="comment" placeholder="{'ms2_frontend_comment' | lexicon}"
                               class="form-control{('comment' in list $errors) ? ' error' : ''}">{$form.comment}</textarea>
                 </div>
                 <span class="col-12 ms_error_comment"></span>
@@ -37,7 +37,7 @@
                         {var $checked = !($order.payment in keys $payments) && $index == 0 || $payment.id == $order.payment}
                         <div class="checkbox">
                             <label class="col-form-label payment ms-input-parent">
-                                <input type="radio" name="payment" value="{$payment.id}" id="payment_{$payment.id}"{$checked ? 'checked' : ''}>
+                                <input type="radio" name="payment" data-ms-order-action="add" value="{$payment.id}" id="payment_{$payment.id}"{$checked ? 'checked' : ''}>
                                 {if $payment.logo?}
                                     <img src="{$payment.logo}" alt="{$payment.name}" title="{$payment.name}" class="mw-100"/>
                                 {else}
@@ -63,7 +63,7 @@
                         {var $checked = !($order.delivery in keys $deliveries) && $index == 0 || $delivery.id == $order.delivery}
                         <div class="checkbox">
                             <label class="col-form-label delivery ms-input-parent">
-                                <input type="radio" name="delivery" value="{$delivery.id}" id="delivery_{$delivery.id}"
+                                <input type="radio" data-ms-order-action="updatePayments" name="delivery" value="{$delivery.id}" id="delivery_{$delivery.id}"
                                        data-payments="{$delivery.payments | json_encode}"
                                         {$checked ? 'checked' : ''}>
                                 {if $delivery.logo?}
@@ -91,7 +91,7 @@
                         {('ms2_frontend_' ~ $field) | lexicon} <span class="required-star">*</span>
                     </label>
                     <div class="col-md-8">
-                        <input data-ms-field type="text" id="{$field}" placeholder="{('ms2_frontend_' ~ $field) | lexicon}"
+                        <input data-ms-order-action="add" type="text" id="{$field}" placeholder="{('ms2_frontend_' ~ $field) | lexicon}"
                                name="{$field}" value="{$form[$field]}"
                                class="form-control{($field in list $errors) ? ' error' : ''}">
                     </div>
@@ -104,7 +104,7 @@
                     {'ms2_frontend_text_address' | lexicon} <span class="required-star">*</span>
                 </label>
                 <div class="col-md-8">
-                    <textarea data-ms-field name="text_address" id="text_address" placeholder="{'ms2_frontend_text_address' | lexicon}"
+                    <textarea data-ms-order-action="add" name="text_address" id="text_address" placeholder="{'ms2_frontend_text_address' | lexicon}"
                               class="form-control{('text_address' in list $errors) ? ' error' : ''}">{$form.text_address}</textarea>
                 </div>
                 <span class="col-12 ms_error_text_address"></span>
@@ -114,7 +114,7 @@
 
     </div>
 
-    <button type="button" name="ms2_action" value="order/clean" data-ms-action="order/clean" class="btn btn-danger ms2_link">
+    <button type="button" data-ms-order-action="clean" class="btn btn-danger ms2_link">
         {'ms2_frontend_order_cancel' | lexicon}
     </button>
 
@@ -124,12 +124,12 @@
     <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end mb-5">
         <h4 class="mb-md-0">{'ms2_frontend_order_cost' | lexicon}:</h4>
         <h3 class="mb-md-0 ml-md-2">
-            <span id="ms2_order_cart_cost" data-ms-cart-cost>{$order.cart_cost ?: 0}</span> {'ms2_frontend_currency' | lexicon} +
-            <span id="ms2_order_delivery_cost" data-ms-delivery-cost>{$order.delivery_cost ?: 0}</span> {'ms2_frontend_currency' | lexicon} =
-            <span id="ms2_order_cost" data-ms-order-cost>{$order.cost ?: 0}</span> {'ms2_frontend_currency' | lexicon}
+            <span data-ms-cart-cost>{$order.cart_cost ?: 0}</span> {'ms2_frontend_currency' | lexicon} +
+            <span data-ms-delivery-cost>{$order.delivery_cost ?: 0}</span> {'ms2_frontend_currency' | lexicon} =
+            <span data-ms-order-cost>{$order.cost ?: 0}</span> {'ms2_frontend_currency' | lexicon}
         </h3>
 
-        <button type="submit" name="ms2_action" value="order/submit" data-ms-action="order/submit" class="btn btn-lg btn-primary ml-md-2 ms2_link">
+        <button type="submit" data-ms-order-action="submit" class="btn btn-lg btn-primary ml-md-2 ms2_link">
             {'ms2_frontend_order_submit' | lexicon}
         </button>
     </div>

@@ -1,11 +1,11 @@
-export  default  class msNotify{
-    constructor(config){
+export default class msNotify {
+    constructor(config) {
         // izitoast
         // sweetalert2
         // https://getuikit.com/docs/notification
         this.config = {
-            'handlerClassName' : 'Swal',
-            'handlerOptions': {
+            handlerClassName: 'Swal',
+            handlerOptions: {
                 position: 'top-end',
                 icon: 'success',
                 title: '',
@@ -17,20 +17,20 @@ export  default  class msNotify{
         this.config = Object.assign(this.config, config);
     }
 
-    showMessage(type,msg){
-        this[type+'Msg'](msg);
+    showMessage(type, msg) {
+        this[type + 'Msg'](msg);
     }
 
-    errorMsg(msg){
-        if(window[this.config.handlerClassName]){
-            let options = Object.assign(this.config.handlerOptions, {icon: 'error', title: msg});
+    errorMsg(msg) {
+        if (window[this.config.handlerClassName]) {
+            const options = Object.assign(this.config.handlerOptions, {icon: 'error', title: msg});
             window[this.config.handlerClassName]['fire'](options);
         }
-
     }
-    successMsg(msg){
-        if(window[this.config.handlerClassName]){
-            let options = Object.assign(this.config.handlerOptions, {title: msg});
+
+    successMsg(msg) {
+        if (window[this.config.handlerClassName]) {
+            const options = Object.assign(this.config.handlerOptions, {title: msg});
             window[this.config.handlerClassName]['fire'](options);
         }
     }

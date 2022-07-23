@@ -32,7 +32,7 @@
             Оформить заказ
         </a>
         <form method="post" class="ms2_form">
-            <button type="submit" name="ms2_action" value="cart/clean" class="btn btn-danger" data-ms-action="cart/clean">
+            <button type="submit" class="btn btn-danger" data-ms-cart-action="clean">
                 {'ms2_cart_clean' | lexicon}
             </button>
         </form>

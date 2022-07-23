@@ -36,12 +36,11 @@
             <input type="hidden" name="key" value="{$key}"/>
             <div class="form-group">
                 <div class="input-group input-group-sm">
-                    <input type="number" name="count" value="{$count}" class="form-control" data-ms-action="cart/change" />
+                    <input type="number" name="count" value="{$count}" class="form-control" data-ms-cart-action="change" />
                     <div class="input-group-append">
                         <span class="input-group-text">{'ms2_frontend_count_unit' | lexicon}</span>
                     </div>
                 </div>
-                <button class="btn btn-sm" type="submit" name="ms2_action" value="cart/change">&#8635;</button>
             </div>
         </form>
     </td>
@@ -60,7 +59,7 @@
     <td class="remove">
         <form method="post" class="ms2_form text-md-right">
             <input type="hidden" name="key" value="{$key}">
-            <button class="btn btn-sm btn-danger" type="submit" name="ms2_action" value="cart/remove">&times;</button>
+            <button class="btn btn-sm btn-danger" type="submit" data-ms-cart-action="remove">&times;</button>
         </form>
     </td>
 </tr>

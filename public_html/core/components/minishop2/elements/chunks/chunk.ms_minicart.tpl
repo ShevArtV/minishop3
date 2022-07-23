@@ -1,4 +1,4 @@
-<div class="msMiniCart" data-ms-minicart>
+<div class="msMiniCart">
     {if $status['total_count'] > 0}
         <div>
             <h5>{'ms2_minicart' | lexicon}</h5>
