@@ -1,69 +1,72 @@
 export default class MiniShop {
     constructor(config) {
         this.config = {
-            'triggerElementSelector': '[data-ms-action]',
-            'cartBlockSelector': '[data-ms-cart]',
-            'orderBlockSelector': '[data-ms-order]',
-            'deliveryFieldSelector': '[name="delivery"]',
-            'paymentFieldSelector': '[name="payment"]',
-            'anotherFieldSelector': '[data-ms-field]',
-            'cartCostSelector': '[data-ms-cart-cost]',
-            'deliveryCostSelector': '[data-ms-delivery-cost]',
-            'orderCostSelector': '[data-ms-order-cost]',
-            'discountCostSelector': '[data-ms-dicrount-cost]',
-            'actionUrl': '/assets/components/minishop2/action.php',
-            'hideClass': 'd-none',
-            'errorClass': 'ms-error',
-            'requireClass': 'ms-required',
-            'inputParentSelector': '.ms-input-parent',
-            'selectorPrefix': 'ms-',
+            triggerElementSelector: '[data-ms-action]',
+            cartBlockSelector: '[data-ms-cart]',
+            orderBlockSelector: '[data-ms-order]',
+            deliveryFieldSelector: '[name="delivery"]',
+            paymentFieldSelector: '[name="payment"]',
+            anotherFieldSelector: '[data-ms-field]',
+            cartCostSelector: '[data-ms-cart-cost]',
+            deliveryCostSelector: '[data-ms-delivery-cost]',
+            orderCostSelector: '[data-ms-order-cost]',
+            discountCostSelector: '[data-ms-discount-cost]',
+            actionUrl: '/assets/components/minishop2/action.php',
+            hideClass: 'd-none',
+            errorClass: 'ms-error',
+            requireClass: 'ms-required',
+            inputParentSelector: '.ms-input-parent',
+            selectorPrefix: 'ms-',
         }
         this.events = {
             ms: {
-                after_send: 'ms_after_send',
-                before_send: 'ms_before_send',
+                afterSend: 'ms_after_send',
+                beforeSend: 'ms_before_send',
             },
         };
         this.className = 'MiniShop';
         this.config = Object.assign(this.config, config);
         this.initialize();
     }
-    initialize(){}
+
+    initialize() {}
 
     async send(params, url, method, headers) {
-        method = method ? method : 'POST';
-        headers = headers ? headers : {"X-Requested-With": "XMLHttpRequest"};
-        url = url ? url : this.config.actionUrl;
+        method = method || 'POST';
+        headers = headers || {"X-Requested-With": "XMLHttpRequest"};
+        url = url || this.config.actionUrl;
 
-        let data = {
+        const data = {
             instance: this,
             params: params,
             callbacks: {
                 errorHandlers: {
                     before: {},
-                    after: {}
+                    after: {},
                 },
                 successHandlers: {
                     before: {},
-                    after: {}
-                }
-            }
+                    after: {},
+                },
+            },
         };
-        if (!this.fire(this.events.ms.before_send, data)) {
+
+        if (!this.fire(this.events.ms.beforeSend, data)) {
             if (data.callbacks.errorHandlers.before.length) {
                 this.runCallbacks(data.callbacks.errorHandlers.before, data);
             }
             this.errorHandler(data);
             return false;
         }
+
         if (data.callbacks.successHandlers.before.length) {
             this.runCallbacks(data.callbacks.successHandlers.before, data);
         }
 
-        let options = {
+        const options = {
             method: method,
             headers: headers,
-            body: data.params
+            body: data.params,
         };
 
         await fetch(url, options)
@@ -79,7 +82,7 @@ export default class MiniShop {
         if (data.params.get('ms_action')) {
             data.action = data.params.get('ms_action');
             data.response = response;
-            if (!this.fire(this.events.ms.after_send, data) || !response.success) {
+            if (!this.fire(this.events.ms.afterSend, data) || !response.success) {
                 if (data.callbacks.errorHandlers.after.length) {
                     this.runCallbacks(data.callbacks.errorHandlers.after, data);
                 }
@@ -102,20 +105,20 @@ export default class MiniShop {
     }
 
     errorHandler(data) {
-        if(this.notify && data.response.message){
+        if (this.notify && data.response.message) {
             this.notify.showMessage('error', data.response.message);
         }
     }
 
     successHandler(data) {
-        if(this.notify && data.response.message){
+        if (this.notify && data.response.message) {
             this.notify.showMessage('success', data.response.message);
         }
     }
 
     fire(eventName, data) {
         data = data || {};
-        let event = new CustomEvent(eventName, {bubbles: true, cancelable: true, composed: true, detail: data});
+        const event = new CustomEvent(eventName, {bubbles: true, cancelable: true, composed: true, detail: data});
         if (!document.dispatchEvent(event)) {
             return false;
         }
@@ -124,7 +127,7 @@ export default class MiniShop {
 
     addListener(selector, scope, methodName) {
         scope = scope || document;
-        let elements = scope.querySelectorAll(selector);
+        const elements = scope.querySelectorAll(selector);
         if (elements) {
             elements.forEach(el => {
                 let eventName = 'click';
@@ -133,13 +136,15 @@ export default class MiniShop {
                 }
                 el.addEventListener(eventName, e => {
                     if (el.dataset.msAction) {
-                        let msAction = el.dataset.msAction.split('/');
+                        const msAction = el.dataset.msAction.split('/');
                         methodName = msAction[1];
                     }
 
                     e.preventDefault();
-                    this[methodName](this.prepare(el), el);
-
+                    
+                    if (typeof this[methodName] === 'function') {
+                        this[methodName](this.prepare(el), el);
+                    }
                 });
             });
         }
@@ -147,7 +152,9 @@ export default class MiniShop {
 
     runCallbacks(callbacks, data) {
         for (let f in callbacks) {
-            callbacks[f](data);
+            if (typeof callbacks[f] === 'function') {
+                callbacks[f](data);
+            }
         }
     }
 }
