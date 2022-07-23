@@ -1,14 +1,14 @@
 import MiniShop from "./minishop.class.js";
-export  default  class msOrder extends MiniShop {
+export default class msOrder extends MiniShop {
     initialize() {
         this.className = 'msOrder';
         this.params = new FormData();
         this.orderBlock = document.querySelector(this.config.orderBlockSelector);
         if (this.orderBlock) {
             this.addListener(this.config.triggerElementSelector, this.orderBlock);
-            this.addListener(this.config.anotherFieldSelector, this.orderBlock,'add');
+            this.addListener(this.config.anotherFieldSelector, this.orderBlock, 'add');
             this.updatePayments(this.params, this.orderBlock.querySelector(this.config.deliveryFieldSelector + ':checked'));
-            this.addListener(this.config.deliveryFieldSelector, this.orderBlock,'updatePayments');
+            this.addListener(this.config.deliveryFieldSelector, this.orderBlock, 'updatePayments');
         }
     }
 
@@ -33,11 +33,12 @@ export  default  class msOrder extends MiniShop {
 
     async updatePayments(params, el) {
         if (el.checked) {
-            let paymentFields = this.orderBlock.querySelectorAll(this.config.paymentFieldSelector),
-                paymentAllow = el.dataset.payments;
+            const paymentFields = this.orderBlock.querySelectorAll(this.config.paymentFieldSelector);
+            const paymentAllow = el.dataset.payments;
+
             if (paymentFields) {
                 paymentFields.forEach(el => {
-                    paymentAllow.indexOf(el.value) === -1 ? el.disabled = true : el.disabled = false;
+                    el.disabled = paymentAllow.indexOf(el.value) === -1;
                 });
                 let curPayment = this.orderBlock.querySelector(this.config.paymentFieldSelector + ':checked');
                 if (curPayment.disabled) {
@@ -89,16 +90,16 @@ export  default  class msOrder extends MiniShop {
                 break;
         }
 
-        if(this.notify && data.response.message){
+        if (this.notify && data.response.message) {
             this.notify.showMessage('error', data.response.message);
         }
     }
 
-    addErrorHandler(data){
-        let fields = data.response.data;
-        if(fields){
-            for(let k in fields){
-                let field = document.querySelector('[name="' + k + '"]');
+    addErrorHandler(data) {
+        const fields = data.response.data;
+        if (fields) {
+            for (let k in fields) {
+                const field = document.querySelector('[name="' + k + '"]');
                 if (field) {
                     field.value = '';
                     field.classList.add(this.config.errorClass);
@@ -121,14 +122,15 @@ export  default  class msOrder extends MiniShop {
                 this.getcostSuccessHandler(data);
                 break;
         }
-        if(this.notify && data.response.message){
+
+        if (this.notify && data.response.message) {
             this.notify.showMessage('success', data.response.message);
         }
     }
 
     getrequiredSuccessHandler(data) {
         if (data.response.data.requires) {
-            let requireFieldWraps = document.querySelectorAll('.' + this.config.requireClass);
+            const requireFieldWraps = document.querySelectorAll('.' + this.config.requireClass);
             if (requireFieldWraps.length) {
                 requireFieldWraps.forEach(el => {
                     el.classList.remove(this.config.requireClass);
@@ -136,7 +138,7 @@ export  default  class msOrder extends MiniShop {
                 });
             }
             data.response.data.requires.forEach(el => {
-                let field = document.querySelector('[name="' + el + '"]');
+                const field = document.querySelector('[name="' + el + '"]');
                 field.closest(this.config.inputParentSelector).classList.add(this.config.requireClass);
                 field.addEventListener('change', this.errorClassRemove.bind(this));
             });
@@ -163,7 +165,7 @@ export  default  class msOrder extends MiniShop {
     submitErrorHandler(data) {
         if (data.response.data) {
             data.response.data.forEach(name => {
-                let field = document.querySelector('[name="' + name + '"]');
+                const field = document.querySelector('[name="' + name + '"]');
                 if (field) {
                     field.classList.add(this.config.errorClass);
                 }
